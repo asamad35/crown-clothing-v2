@@ -1,6 +1,5 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
 import {ReactComponent as Logo} from '../assets/crown.svg'
 
 import CartIcon from "../cart-icon/cart-icon.component";
@@ -9,30 +8,31 @@ import CartDropdown from "../cart-dropdown/cart-dropdown.component";
 import { auth } from "../firebase/firebase.util";
 
 import './header.styles.scss';
+import { HeaderContainer, LogoContainer, OptionsContainer, OptionLink  } from "./header.styles";
 
 const Header = ({currentUser,hidden})=>{
     const title = (title) => title.toUpperCase()
     return (
-        <div className="header">
-            <Link className="logo-container" to='/'>
+        <HeaderContainer>
+            <LogoContainer to='/'>
                 <Logo className='logo'></Logo>
-            </Link>
+            </LogoContainer>
 
-            <div className="options">
-                <Link className="option" to='/'>{title('home')}</Link>
-                <Link className="option" to='/shop'>{title('shop')}</Link>
-                <Link className="option" to='/contact'>{title('contact')}</Link>
+            <OptionsContainer>
+                <OptionLink to='/'>{title('home')}</OptionLink>
+                <OptionLink to='/shop'>{title('shop')}</OptionLink>
+                <OptionLink to='/contact'>{title('contact')}</OptionLink>
                 
                     {
                     currentUser ? 
-                    <div className="option" onClick={()=> auth.signOut()}> {title('sign out')} </div> 
+                    <OptionLink as={`div`} onClick={()=> auth.signOut()}> {title('sign out')} </OptionLink> 
                     : 
-                    <Link className="option" to='/signin'> {title('sign in')} </Link>
+                    <OptionLink to='/signin'> {title('sign in')} </OptionLink>
                      }
                 <CartIcon/>
-            </div>
+            </OptionsContainer>
            {hidden ? null : <CartDropdown />}
-        </div>
+        </HeaderContainer>
     )
 }
 

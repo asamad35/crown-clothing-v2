@@ -6,13 +6,12 @@ import Header from './component/header/header.component';
 import SignInAndSignUpPage from './pages/sign-in-and-sign-up/sign-in-and-sign-up.component';
 import CheckoutPage from './pages/checkout/checkout.component';
 
-import { auth, createUserProfileDocument } from './component/firebase/firebase.util';
+import { auth, createUserProfileDocument, addCollectionAndDocuments } from './component/firebase/firebase.util';
 
 import {Route,Routes,Navigate} from 'react-router-dom' 
 
 import {connect} from 'react-redux'
 import {setCurrentUser} from './redux/user/user.action'
-
 
 class App extends React.Component {
   
@@ -21,7 +20,6 @@ class App extends React.Component {
 
   componentDidMount(){
   const {setCurrentUser} = this.props;
-
    this.unSubscribeFromAuth = auth.onAuthStateChanged(async userAuth =>{
       if(userAuth){
         const userRef = await  createUserProfileDocument(userAuth);
@@ -38,8 +36,8 @@ class App extends React.Component {
       else{
         setCurrentUser( userAuth );
       }
-
     })
+
   }
 
   componentWillUnmount(){
@@ -60,8 +58,8 @@ class App extends React.Component {
   );
 }
 }
-const mapStateToProps = ({user}) =>({
-  currentUser: user.currentUser
+const mapStateToProps = (state) =>({
+  currentUser: state.user.currentUser,
 })
 
 const mapDispatchToProps = dispatch=>({
