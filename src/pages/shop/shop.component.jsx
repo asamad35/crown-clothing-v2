@@ -1,48 +1,57 @@
 import React, { useEffect, useState } from "react";
-import './shop.styles.scss'
+import "./shop.styles.scss";
 
 import { Routes, Route, useParams } from "react-router-dom";
 
-import CollectionsOverview from "../../component/collections-overview/collections-overview";
-import CollectionPage from "../collection/collection.components";
+import CollectionPage from "../collection-page/collection-page.components";
 
-import { connect } from "react-redux";
-import { updateCollections } from "../../redux/shop/shop.actions";
+// import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCollectionsStart } from "../../redux/shop/shop.actions";
+import { selectIsCollectionsLoaded } from "../../redux/shop/shop.selectors";
 
 import WithSpinner from "../../component/with-spinner/with-spinner.component";
+import CollectionsOverviewContainer from "../../component/collections-overview/collection-overview.component";
+// Have a look at container model
+import CollectionPageContainer from "../collection-page/collection-page.container";
 
-import { firestore,convertCollectionsSnapshotToMap } from "../../component/firebase/firebase.util";
+const ShopPage = () => {
+  useEffect(() => {
+    dispatch(fetchCollectionsStart());
+  }, []);
 
-const ShopPage = ({updateCollections}) =>{
-    // loading part
-    const [loading,setLoading] = useState(true)
-    const CollectionsOverviewWithSpinner = WithSpinner(CollectionsOverview)
-    const CollectionPageWithSpinner = WithSpinner(CollectionPage)
-    
-    const unSubscribeFromSnapshot = null;
-    useEffect(()=>{
-        const collectionsRef = firestore.collection('collections');
-        collectionsRef.onSnapshot(async snapshot =>{
-           const collectionsMap = convertCollectionsSnapshotToMap(snapshot);
-           updateCollections(collectionsMap);
-           setLoading(false);
-        })
-    })
+  const isCollectionsLoaded = useSelector(selectIsCollectionsLoaded);
+  const dispatch = useDispatch();
+  const CollectionPageWithSpinner = WithSpinner(CollectionPage);
 
-    const urlParam =  Object.values(useParams())
-        return( 
-        <div className="shop-page">
-           { urlParam[0] ? null : <CollectionsOverviewWithSpinner isLoading={loading}/>}
-            <Routes>
-            <Route  path= '/:urlParam' element={<CollectionPageWithSpinner isLoading={loading} urlParam={urlParam[0]}/>}  />
-            </Routes>
-        </div>
-        
-        )
-}
+  const urlParam = Object.values(useParams());
 
-const mapDispatchToProps = dipsatch =>({
-    updateCollections : (collectionsMap) => dipsatch(updateCollections(collectionsMap))
-})
+  return (
+    <div className="shop-page">
+      {urlParam[0] ? null : <CollectionsOverviewContainer />}
+      <Routes>
+        <Route
+          path="/:urlParam"
+          element={
+            <CollectionPageWithSpinner
+              isLoading={!isCollectionsLoaded}
+              urlParam={urlParam[0]}
+            />
+          }
+        />
+      </Routes>
+    </div>
+  );
+};
 
-export default connect(null,mapDispatchToProps)(ShopPage)
+//
+/*const mapStateToProps = (state) => ({
+  isCollectionsLoaded: selectIsCollectionsLoaded(state),
+});
+
+const mapDispatchToProps = (dipsatch) => ({
+  fetchCollectionsStart: () => dipsatch(fetchCollectionsStart()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ShopPage);*/
+export default ShopPage;
